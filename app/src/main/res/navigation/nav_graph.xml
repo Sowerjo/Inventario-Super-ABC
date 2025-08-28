@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/leituraFragment">
+
+    <fragment
+        android:id="@+id/leituraFragment"
+        android:name="com.mobitech.inventarioabc.ui.leitura.LeituraFragment"
+        android:label="@string/leitura_title">
+        <action
+            android:id="@+id/action_leitura_to_lista"
+            app:destination="@id/listaFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/listaFragment"
+        android:name="com.mobitech.inventarioabc.ui.lista.ListaFragment"
+        android:label="@string/lista_title_base">
+        <action
+            android:id="@+id/action_lista_to_leitura"
+            app:destination="@id/leituraFragment"
+            app:popUpTo="@id/leituraFragment"
+            app:popUpToInclusive="false" />
+    </fragment>
+
+</navigation>

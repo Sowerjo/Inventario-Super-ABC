@@ -1,0 +1,39 @@
+<resources>
+    <string name="app_name">Inventário ABC</string>
+
+    <!-- Tela de Leitura -->
+    <string name="leitura_title">Inventário — Leitura</string>
+    <string name="codigo_label">Código do Produto</string>
+    <string name="quantidade_label">Quantidade</string>
+    <string name="confirmar">Confirmar</string>
+    <string name="ver_itens">Ver Itens</string>
+
+    <!-- Tela de Lista -->
+    <string name="lista_title_base">Itens Lidos</string>
+    <string name="lista_title_count">Itens Lidos (%1$d)</string>
+    <string name="voltar_leitura">Voltar para Leitura</string>
+    <string name="qtd_data_format">Qtd: %1$d • Data: %2$s</string>
+    <string name="editar">Editar</string>
+    <string name="excluir">Excluir</string>
+
+    <!-- Diálogos -->
+    <string name="codigo_ja_lido_title">Código já foi lido</string>
+    <string name="codigo_ja_lido_message">Deseja alterar a quantidade?</string>
+    <string name="alterar">Alterar</string>
+    <string name="cancelar">Cancelar</string>
+    <string name="confirmar_exclusao_title">Confirmar Exclusão</string>
+    <string name="confirmar_exclusao_message">Excluir o código %s do inventário? Esta ação removerá do CSV.</string>
+    <string name="editar_quantidade_title">Editar Quantidade</string>
+    <string name="nova_quantidade_label">Nova quantidade</string>
+
+    <!-- Feedbacks -->
+    <string name="lido_e_salvo">Lido e salvo</string>
+    <string name="quantidade_atualizada">Quantidade atualizada</string>
+    <string name="item_excluido">Excluído</string>
+    <string name="quantidade_invalida">Quantidade deve ser maior que 0</string>
+    <string name="erro_salvar_csv">Erro ao salvar CSV</string>
+    <string name="selecionar_pasta_novamente">Selecionar pasta INVENTARIO novamente</string>
+    <string name="pasta_inventario_title">Selecionar Pasta INVENTARIO</string>
+    <string name="pasta_inventario_message">Escolha ou crie a pasta INVENTARIO na raiz do armazenamento</string>
+    <string name="buscar_codigo">Buscar código</string>
+</resources>

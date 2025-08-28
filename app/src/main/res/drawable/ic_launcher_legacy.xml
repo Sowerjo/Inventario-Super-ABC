@@ -1,0 +1,34 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+  <!-- Background -->
+  <path android:fillColor="#2196F3"
+        android:pathData="M0,0h48v48h-48z"/>
+
+  <!-- Clipboard -->
+  <path android:fillColor="#FFFFFF"
+        android:pathData="M12,8h24c1,0 2,1 2,2v28c0,1 -1,2 -2,2H12c-1,0 -2,-1 -2,-2V10c0,-1 1,-2 2,-2z"/>
+
+  <!-- Clipboard clip -->
+  <path android:fillColor="#E0E0E0"
+        android:pathData="M16,6h16c1,0 2,1 2,2v3c0,1 -1,2 -2,2H16c-1,0 -2,-1 -2,-2V8c0,-1 1,-2 2,-2z"/>
+
+  <!-- List items -->
+  <path android:fillColor="#2196F3"
+        android:pathData="M16,18h16v2H16z"/>
+  <path android:fillColor="#2196F3"
+        android:pathData="M16,22h14v2H16z"/>
+  <path android:fillColor="#2196F3"
+        android:pathData="M16,26h15v2H16z"/>
+  <path android:fillColor="#2196F3"
+        android:pathData="M16,30h13v2H16z"/>
+
+  <!-- Check marks -->
+  <path android:fillColor="#4CAF50"
+        android:pathData="M33,17l1,1l-2,2l-1,-1z"/>
+  <path android:fillColor="#4CAF50"
+        android:pathData="M31,21l1,1l-2,2l-1,-1z"/>
+</vector>
+
