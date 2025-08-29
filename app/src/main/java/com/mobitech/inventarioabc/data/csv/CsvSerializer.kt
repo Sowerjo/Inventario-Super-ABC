@@ -23,30 +23,61 @@ object CsvSerializer {
         val items = mutableMapOf<String, InventoryItem>()
         val lines = csvContent.lines()
 
-        if (lines.isEmpty() || lines[0] != HEADER) {
+        if (lines.isEmpty()) {
             return items
         }
 
-        for (i in 1 until lines.size) {
+        // Detecta o separador usado no arquivo (vírgula ou ponto e vírgula)
+        val separator = detectSeparator(lines)
+
+        // Verifica se a primeira linha é um cabeçalho válido (ignora caso não seja)
+        val startIndex = if (isValidHeader(lines[0], separator)) 1 else 0
+
+        for (i in startIndex until lines.size) {
             val line = lines[i].trim()
             if (line.isEmpty()) continue
 
             try {
-                val parts = parseCsvLine(line)
+                val parts = parseCsvLine(line, separator)
                 if (parts.size >= 3) {
-                    val codigo = parts[0]
-                    val quantidade = parts[1].toInt()
-                    val dataHora = DateTimeFmt.parseFromIso(parts[2])
+                    val codigo = cleanField(parts[0])
+                    val quantidade = cleanField(parts[1]).toInt()
+                    val dataHora = DateTimeFmt.parseFromIso(cleanField(parts[2]))
 
                     val item = InventoryItem(codigo, quantidade, dataHora)
                     items[codigo] = item
                 }
             } catch (e: Exception) {
                 // Ignora linhas com erro de parsing
+                android.util.Log.d("CsvSerializer", "Erro ao processar linha: $line - ${e.message}")
             }
         }
 
         return items
+    }
+
+    private fun detectSeparator(lines: List<String>): String {
+        if (lines.isEmpty()) return ","
+
+        val firstLine = lines[0]
+        val commaCount = firstLine.count { it == ',' }
+        val semicolonCount = firstLine.count { it == ';' }
+
+        return if (semicolonCount > commaCount) ";" else ","
+    }
+
+    private fun isValidHeader(line: String, separator: String): Boolean {
+        val expectedHeaders = listOf("codigo", "quantidade", "data_hora_iso")
+        val parts = parseCsvLine(line, separator).map { cleanField(it).lowercase() }
+
+        return parts.size >= 3 &&
+               parts[0] == expectedHeaders[0] &&
+               parts[1] == expectedHeaders[1] &&
+               parts[2] == expectedHeaders[2]
+    }
+
+    private fun cleanField(field: String): String {
+        return field.trim().removeSurrounding("\"")
     }
 
     private fun escapeField(field: String): String {
@@ -57,7 +88,7 @@ object CsvSerializer {
         }
     }
 
-    private fun parseCsvLine(line: String): List<String> {
+    private fun parseCsvLine(line: String, separator: String = ","): List<String> {
         val result = mutableListOf<String>()
         var currentField = StringBuilder()
         var inQuotes = false
@@ -78,7 +109,7 @@ object CsvSerializer {
                         inQuotes = false
                     }
                 }
-                char == ',' && !inQuotes -> {
+                char.toString() == separator && !inQuotes -> {
                     result.add(currentField.toString())
                     currentField.clear()
                 }

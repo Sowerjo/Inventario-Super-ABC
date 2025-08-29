@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.mobitech.inventarioabc.data.repository.InventoryRepository
 import com.mobitech.inventarioabc.domain.usecase.ConfirmReadUseCase
 import com.mobitech.inventarioabc.domain.usecase.LoadFromCsvUseCase
+import com.mobitech.inventarioabc.domain.usecase.EditQuantityUseCase
 import kotlinx.coroutines.launch
 
 class LeituraViewModel(application: Application) : AndroidViewModel(application) {
@@ -15,6 +16,7 @@ class LeituraViewModel(application: Application) : AndroidViewModel(application)
     private val repository = InventoryRepository(application)
     private val loadFromCsvUseCase = LoadFromCsvUseCase(repository)
     private val confirmReadUseCase = ConfirmReadUseCase(repository)
+    private val editQuantityUseCase = EditQuantityUseCase(repository)
 
     private val _scannedCode = MutableLiveData<String>()
     val scannedCode: LiveData<String> = _scannedCode
@@ -39,8 +41,11 @@ class LeituraViewModel(application: Application) : AndroidViewModel(application)
 
     fun loadData() {
         viewModelScope.launch {
+            // Sempre carregar dados do CSV quando inicializar ou quando solicitado
             if (repository.hasFolderPermission()) {
-                loadFromCsvUseCase.execute()
+                repository.load() // Força o carregamento completo do CSV
+            } else {
+                _needsFolderSelection.value = true
             }
         }
     }
@@ -50,50 +55,35 @@ class LeituraViewModel(application: Application) : AndroidViewModel(application)
     }
 
     fun confirmRead(codigo: String, quantidade: Int) {
-        if (quantidade <= 0) {
-            _confirmResult.value = ConfirmResult(
-                success = false,
-                message = "Quantidade deve ser maior que 0"
-            )
-            return
-        }
-
         viewModelScope.launch {
-            try {
-                val result = confirmReadUseCase.execute(codigo, quantidade)
+            val result = confirmReadUseCase.execute(codigo, quantidade)
 
-                if (result.success) {
-                    if (result.isNewItem) {
-                        val message = if (result.backupCreated) {
-                            "Lido e salvo (backup criado)"
-                        } else {
-                            "Lido e salvo"
-                        }
-                        _confirmResult.value = ConfirmResult(
-                            success = true,
-                            message = message,
-                            backupCreated = result.backupCreated
-                        )
+            if (result.success) {
+                if (result.isNewItem) {
+                    val message = if (result.backupCreated) {
+                        "Lido e salvo (backup criado)"
                     } else {
-                        // Item já existe - mostrar diálogo
-                        val existingItem = repository.getItem(codigo)
-                        _confirmResult.value = ConfirmResult(
-                            success = true,
-                            message = "",
-                            isDuplicate = true,
-                            existingQuantity = existingItem?.quantidade ?: 0
-                        )
+                        "Lido e salvo"
                     }
-                } else {
                     _confirmResult.value = ConfirmResult(
-                        success = false,
-                        message = "Erro ao salvar"
+                        success = true,
+                        message = message,
+                        backupCreated = result.backupCreated
+                    )
+                } else {
+                    // Item já existe - mostrar diálogo
+                    val existingItem = repository.getItem(codigo)
+                    _confirmResult.value = ConfirmResult(
+                        success = true,
+                        message = "",
+                        isDuplicate = true,
+                        existingQuantity = existingItem?.quantidade ?: 0
                     )
                 }
-            } catch (e: Exception) {
+            } else {
                 _confirmResult.value = ConfirmResult(
                     success = false,
-                    message = "Erro inesperado"
+                    message = result.errorMessage ?: "Erro desconhecido ao salvar"
                 )
             }
         }
@@ -101,18 +91,25 @@ class LeituraViewModel(application: Application) : AndroidViewModel(application)
 
     fun updateExistingItem(codigo: String, quantidade: Int) {
         viewModelScope.launch {
-            val success = repository.updateQuantity(codigo, quantidade)
+            val result = editQuantityUseCase.execute(codigo, quantidade)
             _confirmResult.value = ConfirmResult(
-                success = success,
-                message = if (success) "Quantidade atualizada" else "Erro ao atualizar"
+                success = result.success,
+                message = if (result.success) "Quantidade atualizada" else (result.errorMessage ?: "Erro ao atualizar")
             )
         }
     }
 
     fun onFolderSelected(uri: android.net.Uri) {
-        repository.setFolderUri(uri)
-        loadData()
-        _needsFolderSelection.value = false
+        try {
+            repository.setFolderUri(uri)
+            loadData()
+            _needsFolderSelection.value = false
+        } catch (e: Exception) {
+            _confirmResult.value = ConfirmResult(
+                success = false,
+                message = "Erro ao configurar pasta: ${e.message}"
+            )
+        }
     }
 
     fun requestFolderSelection() { _needsFolderSelection.value = true }

@@ -39,18 +39,30 @@ class ListaViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun loadItems() {
         viewModelScope.launch {
-            if (repository.hasFolderPermission()) {
-                // Recarrega do CSV para garantir sincronização entre telas
-                loadFromCsvUseCase.execute()
+            try {
+                // Sempre forçar o carregamento completo do CSV para garantir sincronização
+                if (repository.hasFolderPermission()) {
+                    repository.load() // Força carregamento completo do CSV
+                }
+                val map = repository.getAllItems()
+                // Ordenar por data/hora mais recente primeiro (descendente)
+                allItems = map.values.sortedByDescending { it.dataHoraEpochMillis }
+                applyFilter()
+            } catch (e: Exception) {
+                _actionResult.value = ActionResult(
+                    success = false,
+                    message = "Erro ao carregar itens: ${e.message}"
+                )
             }
-            val map = repository.getAllItems()
-            allItems = map.values.sortedByDescending { it.dataHoraEpochMillis }
-            applyFilter()
         }
     }
 
     private fun applyFilter() {
-        val filtered = if (currentQuery.isBlank()) allItems else allItems.filter { it.codigo.contains(currentQuery, ignoreCase = true) }
+        val filtered = if (currentQuery.isBlank()) {
+            allItems
+        } else {
+            allItems.filter { it.codigo.contains(currentQuery, ignoreCase = true) }
+        }
         _items.value = filtered
     }
 
@@ -60,41 +72,29 @@ class ListaViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun editQuantity(codigo: String, newQuantity: Int) {
-        if (newQuantity <= 0) {
-            _actionResult.value = ActionResult(
-                success = false,
-                message = "Quantidade deve ser maior que 0"
-            )
-            return
-        }
-
         viewModelScope.launch {
-            val success = editQuantityUseCase.execute(codigo, newQuantity)
+            val result = editQuantityUseCase.execute(codigo, newQuantity)
             _actionResult.value = ActionResult(
-                success = success,
-                message = if (success) "Atualizado" else "Erro ao atualizar"
+                success = result.success,
+                message = if (result.success) "Atualizado" else (result.errorMessage ?: "Erro ao atualizar")
             )
 
-            if (success) {
+            if (result.success) {
                 loadItems()
-            } else {
-                applyFilter()
             }
         }
     }
 
     fun deleteItem(codigo: String) {
         viewModelScope.launch {
-            val success = deleteItemUseCase.execute(codigo)
+            val result = deleteItemUseCase.execute(codigo)
             _actionResult.value = ActionResult(
-                success = success,
-                message = if (success) "Excluído" else "Erro ao excluir"
+                success = result.success,
+                message = if (result.success) "Excluído" else (result.errorMessage ?: "Erro ao excluir")
             )
 
-            if (success) {
+            if (result.success) {
                 loadItems()
-            } else {
-                applyFilter()
             }
         }
     }
