@@ -73,6 +73,11 @@ class ListaFragment : Fragment() {
             }
         }
 
+        // Observar o total de itens para atualizar o contador
+        viewModel.totalCount.observe(viewLifecycleOwner) { totalCount ->
+            binding.textTotalItens.text = getString(R.string.total_produtos, totalCount)
+        }
+
         viewModel.actionResult.observe(viewLifecycleOwner) { result ->
             showSnackbar(result.message)
         }

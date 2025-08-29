@@ -25,6 +25,9 @@ class ListaViewModel(application: Application) : AndroidViewModel(application) {
     private val _actionResult = MutableLiveData<ActionResult>()
     val actionResult: LiveData<ActionResult> = _actionResult
 
+    private val _totalCount = MutableLiveData<Int>()
+    val totalCount: LiveData<Int> = _totalCount
+
     data class ActionResult(
         val success: Boolean,
         val message: String
@@ -64,6 +67,7 @@ class ListaViewModel(application: Application) : AndroidViewModel(application) {
             allItems.filter { it.codigo.contains(currentQuery, ignoreCase = true) }
         }
         _items.value = filtered
+        _totalCount.value = filtered.size // Atualiza a contagem total sempre que o filtro é aplicado
     }
 
     fun setSearchQuery(query: String) {

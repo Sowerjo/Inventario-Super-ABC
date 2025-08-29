@@ -11,6 +11,7 @@
     <!-- Tela de Lista -->
     <string name="lista_title_base">Itens Lidos</string>
     <string name="lista_title_count">Itens Lidos (%1$d)</string>
+    <string name="total_produtos">Total de produtos: %1$d</string>
     <string name="voltar_leitura">Voltar para Leitura</string>
     <string name="qtd_data_format">Qtd: %1$d • Data: %2$s</string>
     <string name="editar">Editar</string>
