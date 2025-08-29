@@ -6,8 +6,7 @@
 
     <fragment
         android:id="@+id/leituraFragment"
-        android:name="com.mobitech.inventarioabc.ui.leitura.LeituraFragment"
-        android:label="@string/leitura_title">
+        android:name="com.mobitech.inventarioabc.ui.leitura.LeituraFragment">
         <action
             android:id="@+id/action_leitura_to_lista"
             app:destination="@id/listaFragment" />

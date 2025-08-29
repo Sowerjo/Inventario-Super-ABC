@@ -35,9 +35,6 @@ class ListaFragment : Fragment() {
         setupRecyclerView()
         setupObservers()
         setupSearch()
-
-        // Título inicial
-        activity?.title = getString(R.string.lista_title_base)
     }
 
     private fun setupRecyclerView() {
@@ -60,8 +57,7 @@ class ListaFragment : Fragment() {
         viewModel.items.observe(viewLifecycleOwner) { items ->
             adapter.submitList(items)
 
-            // Atualizar título com contagem
-            activity?.title = getString(R.string.lista_title_count, items.size)
+            // Remover configuração de título já que não há mais toolbar
 
             // Mostrar/ocultar mensagem vazia
             if (items.isEmpty()) {
